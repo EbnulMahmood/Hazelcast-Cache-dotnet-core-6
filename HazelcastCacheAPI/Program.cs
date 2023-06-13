@@ -1,6 +1,12 @@
+using Hazelcast;
+using Sql.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var hazelcastOptions = builder.Configuration.GetSection("hazelcast").Get<HazelcastOptions>();
+
+builder.Services.AddCacheService(hazelcastOptions);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -4,7 +4,7 @@ using Hazelcast.Configuration;
 using Hazelcast.DistributedObjects;
 using Microsoft.Extensions.Caching.Distributed;
 
-internal sealed class HazelcastCache : IDistributedCache, IAsyncDisposable
+internal class HazelcastCache : IDistributedCache, IAsyncDisposable
 {
     private readonly HazelcastOptions? _hazelcastOptions;
     private readonly string _mapName;
@@ -68,7 +68,7 @@ internal sealed class HazelcastCache : IDistributedCache, IAsyncDisposable
     public Task<byte[]?> GetAsync(string key, CancellationToken token = default) => GetAndRefreshAsync(key, getData: true, token);
 
     public void Set(string key, byte[] value, DistributedCacheEntryOptions options) => SetAsync(key, value, options).GetAwaiter().GetResult();
-    
+
     public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
     {
         if (key is null) throw new ArgumentNullException(nameof(key));
@@ -85,21 +85,20 @@ internal sealed class HazelcastCache : IDistributedCache, IAsyncDisposable
         {
             throw new ArgumentException("Options produce negative max-idle or time-to-live.", nameof(options));
         }
-
         await _map.SetAsync(key, value, timeToLive, maxIdle).ConfigureAwait(false);
     }
-    
+
     public void Refresh(string key) => GetAndRefreshAsync(key, getData: false).GetAwaiter().GetResult();
 
     public Task RefreshAsync(string key, CancellationToken token = default) => GetAndRefreshAsync(key, getData: true, token);
-    
+
     private async Task<byte[]?> GetAndRefreshAsync(string key, bool getData, CancellationToken token = default)
     {
         if (key is null) throw new ArgumentNullException(nameof(key));
 
         token.ThrowIfCancellationRequested();
         await ConnectAsync(token).ConfigureAwait(false);
-        
+
         if (getData) return await _map.GetAsync(key).ConfigureAwait(false);
 
         await _map.ContainsKeyAsync(key).ConfigureAwait(false);
