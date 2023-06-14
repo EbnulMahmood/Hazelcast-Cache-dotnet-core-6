@@ -15,6 +15,53 @@ namespace HazelcastCacheAPI.Controllers
             _customerService = customerService;
         }
 
+        [HttpGet]
+        [Route("/customers")]
+        public async Task<IActionResult> LoadCustomer(CancellationToken token = default) 
+        {
+            try
+            {
+                var customers = await _customerService.LoadCustomerAsync(true, token: token).ConfigureAwait(false);
+                return Ok(customers);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("/customers/linq")]
+        public async Task<IActionResult> LoadCustomerLINQ(CancellationToken token = default)
+        {
+            try
+            {
+                var customers = await _customerService.LoadCustomerAsync(false, token: token).ConfigureAwait(false);
+                return Ok(customers);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        [HttpGet]
+        [Route("/customers/memory")]
+        public async Task<IActionResult> LoadCustomerMemory(CancellationToken token = default)
+        {
+            try
+            {
+                var customers = await _customerService.LoadCustomerAsync(false, true, token: token).ConfigureAwait(false);
+                return Ok(customers);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         [HttpPost]
         [Route("/data/seed-customers")]
         public async Task<IActionResult> SeedData(CancellationToken token = default)
@@ -32,7 +79,7 @@ namespace HazelcastCacheAPI.Controllers
                         CreatedAt = DateTimeOffset.UtcNow
                     };
                 }
-                await _customerService.CreateCustomerMapAsync(entities, mapName: "customer", useSql: false, token: token).ConfigureAwait(false);
+                await _customerService.CreateCustomerMapAsync(entities, useSql: false, token: token).ConfigureAwait(false);
 
                 return Ok(entities);
             }

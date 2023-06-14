@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Hazelcast.Net" Version="5.2.2" />
     <PackageReference Include="Hazelcast.Net.DependencyInjection" Version="5.2.2" />
+    <PackageReference Include="Hazelcast.Net.Linq.Async" Version="5.2.2" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
