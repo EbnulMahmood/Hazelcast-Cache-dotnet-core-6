@@ -30,7 +30,7 @@ namespace Sql
 
                 var products = await list.ToListAsync(cancellationToken: token).ConfigureAwait(false);
 
-                await list.DisposeAsync().ConfigureAwait(false);
+                await client.DestroyAsync(list).ConfigureAwait(false);
                 await client.DisposeAsync().ConfigureAwait(false);
 
                 return products;
@@ -63,7 +63,7 @@ namespace Sql
                     }
                 }
 
-                await list.DisposeAsync().ConfigureAwait(false);
+                await client.DestroyAsync(list).ConfigureAwait(false);
                 await client.DisposeAsync().ConfigureAwait(false);
             }
             catch (Exception)

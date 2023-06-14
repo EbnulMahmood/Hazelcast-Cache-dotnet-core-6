@@ -40,7 +40,7 @@ namespace Sql
                         var obj = JsonSerializer.Deserialize<Customer>(jsonObj.ToString());
                         customers.Add(obj);
                     }
-                    await map.DisposeAsync().ConfigureAwait(false);
+                    await client.DestroyAsync(map).ConfigureAwait(false);
                     await client.DisposeAsync().ConfigureAwait(false);
 
                     return customers;
@@ -55,7 +55,7 @@ FROM {map.Name}", cancellationToken: token).ConfigureAwait(false);
                     var customers = await GetJsonTOEntityListAsync<Customer>(result, token).ConfigureAwait(false);
 
                     await result.DisposeAsync().ConfigureAwait(false);
-                    await map.DisposeAsync().ConfigureAwait(false);
+                    await client.DestroyAsync(map).ConfigureAwait(false);
                     await client.DisposeAsync().ConfigureAwait(false);
 
                     return customers;
@@ -72,7 +72,7 @@ FROM {map.Name}", cancellationToken: token).ConfigureAwait(false);
                         customers.Add(obj);
                     }
 
-                    await map.DisposeAsync().ConfigureAwait(false);
+                    await client.DestroyAsync(map).ConfigureAwait(false);
                     await client.DisposeAsync().ConfigureAwait(false);
 
                     return customers;
@@ -125,8 +125,8 @@ FROM {map.Name}", cancellationToken: token).ConfigureAwait(false);
                     }
                 }
 
+                await client.DestroyAsync(map).ConfigureAwait(false);
                 await client.DisposeAsync().ConfigureAwait(false);
-                await map.DisposeAsync().ConfigureAwait(false);
 
                 return map;
             }
