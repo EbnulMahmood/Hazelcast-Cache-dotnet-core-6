@@ -9,6 +9,7 @@ namespace Sql.Extensions
         {
             services.AddSingleton<ICustomerService, CustomerService>(_ => new CustomerService(hazelcastOptions, "customer"));
             services.AddSingleton<IProductService, ProductService>(_ => new ProductService(hazelcastOptions, "product"));
+            services.AddSingleton<IOrderService, OrderService>(_ => new OrderService(hazelcastOptions, "customerOrder"));
         }
     }
 }
