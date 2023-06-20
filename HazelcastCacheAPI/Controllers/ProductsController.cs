@@ -1,4 +1,5 @@
 ﻿using Document;
+using HazelcastCacheAPI.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Sql;
 
@@ -38,7 +39,7 @@ namespace HazelcastCacheAPI.Controllers
             try
             {
                 var entities = new List<Product>();
-                for (var i = 1; i <= 10; i++)
+                for (var i = 1; i <= Constants.fiveMillion; i++)
                 {
                     entities.Add(new Product
                     {
@@ -48,9 +49,11 @@ namespace HazelcastCacheAPI.Controllers
                         CreatedAt = DateTimeOffset.UtcNow
                     });
                 }
-                await _productService.CreateProductListAsync(entities, true, token: token).ConfigureAwait(false);
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                var count = await _productService.CreateProductListAsync(entities, isAddAll:true, token: token).ConfigureAwait(false);
+                watch.Stop();
 
-                return Ok(entities);
+                return Ok($"{count} Records Load Time: {watch.ElapsedMilliseconds} milliseconds, {TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalSeconds} seconds and {TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalMinutes} minutes");
             }
             catch (Exception)
             {

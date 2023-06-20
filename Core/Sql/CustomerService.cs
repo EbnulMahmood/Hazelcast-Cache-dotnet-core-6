@@ -152,8 +152,7 @@ TYPE IMap OPTIONS ('keyFormat'='int', 'valueFormat'='json-flat')", cancellationT
 
                 if (isSetAll)
                 {
-                    var task = map.SetAllAsync(entries);
-                    await task.WaitAsync(token).ConfigureAwait(false);
+                    await map.SetAllAsync(entries).ConfigureAwait(false);
                 }
                 else
                 {

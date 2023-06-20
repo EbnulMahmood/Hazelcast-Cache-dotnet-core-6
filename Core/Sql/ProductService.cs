@@ -5,8 +5,8 @@ namespace Sql
 {
     public interface IProductService
     {
-        Task<List<Product>> LoadProductListAsync(CancellationToken token = default);
-        Task CreateProductListAsync(List<Product> entities, bool isAddAll = false, CancellationToken token = default);
+        Task<string> LoadProductListAsync(CancellationToken token = default);
+        Task<int> CreateProductListAsync(List<Product> entities, bool isAddAll = false, CancellationToken token = default);
     }
 
     internal sealed class ProductService : IProductService
@@ -20,20 +20,23 @@ namespace Sql
             _listName = listName;
         }
 
-        public async Task<List<Product>> LoadProductListAsync(CancellationToken token = default)
+        public async Task<string> LoadProductListAsync(CancellationToken token = default)
         {
             try
             {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 await using var client = await HazelcastClientFactory.StartNewClientAsync(_options, cancellationToken: token).ConfigureAwait(false);
 
                 await using var list = await client.GetListAsync<Product>(_listName).ConfigureAwait(false);
+                watch.Stop();
+                var count = await list.CountAsync(cancellationToken: token).ConfigureAwait(false);
 
                 var products = await list.ToListAsync(cancellationToken: token).ConfigureAwait(false);
 
                 await list.DisposeAsync().ConfigureAwait(false);
                 await client.DisposeAsync().ConfigureAwait(false);
 
-                return products;
+                return $"{count} Records Load Time: {watch.ElapsedMilliseconds} milliseconds, {TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalSeconds} seconds and {TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalMinutes} minutes";
             }
             catch (Exception)
             {
@@ -42,7 +45,7 @@ namespace Sql
             }
         }
 
-        public async Task CreateProductListAsync(List<Product> entities, bool isAddAll = false, CancellationToken token = default)
+        public async Task<int> CreateProductListAsync(List<Product> entities, bool isAddAll = false, CancellationToken token = default)
         {
             try
             {
@@ -52,8 +55,8 @@ namespace Sql
 
                 if (isAddAll)
                 {
-                    var task = list.AddAllAsync(0, entities);
-                    await task.WaitAsync(token).ConfigureAwait(false);
+                    await list.AddAllAsync(0, entities).ConfigureAwait(false);
+                    //await task.WaitAsync(token).ConfigureAwait(false);
                 }
                 else
                 {
@@ -63,8 +66,12 @@ namespace Sql
                     }
                 }
 
+                var count = await list.CountAsync(cancellationToken: token).ConfigureAwait(false);
+
                 await list.DisposeAsync().ConfigureAwait(false);
                 await client.DisposeAsync().ConfigureAwait(false);
+
+                return count;
             }
             catch (Exception)
             {
