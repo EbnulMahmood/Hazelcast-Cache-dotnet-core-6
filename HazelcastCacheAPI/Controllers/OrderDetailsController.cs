@@ -18,6 +18,22 @@ namespace HazelcastCacheAPI.Controllers
             _orderDetailsService = orderDetailsService;
         }
 
+        [HttpGet]
+        [Route("/order-details/with-customer-orders")]
+        public async Task<IActionResult> LoadCustomerOrder(CancellationToken token = default)
+        {
+            try
+            {
+                var customers = await _orderDetailsService.LoadOrderDetailsWithCustomerOrderAsync(token: token).ConfigureAwait(false);
+                return Ok(customers);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         [HttpPost]
         [Route("/data/seed-orders-details")]
         public async Task<IActionResult> SeedData(CancellationToken token = default)
